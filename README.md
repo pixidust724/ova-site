@@ -2,4 +2,6 @@
 
 Marketing/landing page for [Ova](https://github.com/pixidust724/ova) — a private, self-hosted diary PWA with a pet that grows with every entry.
 
-Static single-page site (`index.html`, no build step). Deploy as-is on Vercel, GitHub Pages, or any static host.
+**Live:** https://pixidust724.github.io/ova-site/
+
+Static single-page site (`index.html`, no build step). Deployed on GitHub Pages.
