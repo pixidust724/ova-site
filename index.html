@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ova</title>
+<meta name="description" content="A private, self-hosted diary where a pixel pet grows with every entry you write.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥚</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#ece6d3;
+    --surface:#fffdf4;
+    --surface-2:#f7f0dc;
+    --ink:#2b2118;
+    --ink-soft:#6b5d4a;
+    --accent:#de9a2e;
+    --accent-ink:#2b2118;
+    --grass:#5c7a3e;
+    --sky-top:#a9cfe8;
+    --sky-bottom:#f3d9ae;
+    --line:#2b2118;
+    --line-soft:#d9cdae;
+    --shadow: 4px 4px 0 rgba(43,33,24,0.9);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#181730;
+      --surface:#232145;
+      --surface-2:#1e1c3c;
+      --ink:#f1e8d6;
+      --ink-soft:#c9bfae;
+      --accent:#f0ac4a;
+      --accent-ink:#201808;
+      --grass:#8bb463;
+      --sky-top:#2b3a63;
+      --sky-bottom:#4a3b5c;
+      --line:#f1e8d6;
+      --line-soft:#3d3a63;
+      --shadow: 4px 4px 0 rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#181730;
+    --surface:#232145;
+    --surface-2:#1e1c3c;
+    --ink:#f1e8d6;
+    --ink-soft:#c9bfae;
+    --accent:#f0ac4a;
+    --accent-ink:#201808;
+    --grass:#8bb463;
+    --sky-top:#2b3a63;
+    --sky-bottom:#4a3b5c;
+    --line:#f1e8d6;
+    --line-soft:#3d3a63;
+    --shadow: 4px 4px 0 rgba(0,0,0,0.55);
+  }
+
+  *{box-sizing:border-box;}
+  html{color-scheme:light dark;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Nunito',system-ui,sans-serif;
+    line-height:1.55;
+  }
+  img{image-rendering:pixelated; image-rendering:crisp-edges; max-width:100%;}
+  .wordmark,.eyebrow,.readout,.tag{font-family:'Silkscreen',monospace;}
+  h1,h2,h3{font-family:'Baloo 2',sans-serif; font-weight:700; text-wrap:balance; margin:0; letter-spacing:0;}
+  code,.mono,.spec{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- header ---------- */
+  header{
+    border-bottom:3px solid var(--line);
+    background:var(--bg);
+  }
+  .headbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 0;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand img{width:28px; height:28px;}
+  .wordmark{font-size:15px; letter-spacing:0.02em;}
+  nav{display:flex; gap:26px; font-size:13px; font-weight:700;}
+  nav a{text-decoration:none; border-bottom:2px solid transparent; padding-bottom:2px;}
+  nav a:hover, nav a:focus-visible{border-bottom-color:var(--accent);}
+  nav a:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 56px;}
+  .hero .wrap{
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:48px;
+    align-items:center;
+  }
+  .eyebrow{
+    font-size:11px; letter-spacing:0.14em; color:var(--accent);
+    background:var(--surface-2); display:inline-block;
+    padding:6px 10px; border:2px solid var(--line);
+  }
+  .hero h1{
+    font-size:clamp(28px,4vw,44px);
+    font-weight:800;
+    line-height:1.22;
+    margin:18px 0 16px;
+  }
+  .hero p.lede{
+    font-size:17px; color:var(--ink-soft); max-width:46ch; margin:0 0 26px;
+  }
+  .cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:28px;}
+  .btn{
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:14.5px;
+    padding:13px 20px; border:3px solid var(--line);
+    text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    cursor:pointer; box-shadow:var(--shadow);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{transform:translate(2px,2px); box-shadow:0 0 0 rgba(0,0,0,0);}
+  .btn-primary{background:var(--accent); color:var(--accent-ink);}
+  .btn-ghost{background:var(--surface); color:var(--ink);}
+  .factbits{display:flex; flex-wrap:wrap; gap:10px;}
+  .factbit{
+    font-size:12px; font-weight:700; color:var(--ink-soft);
+    border:2px solid var(--line-soft); padding:5px 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .factbit::before{content:""; width:6px; height:6px; background:var(--accent); flex:none;}
+
+  /* device frame */
+  .device-wrap{display:flex; justify-content:center;}
+  .device{
+    position:relative;
+    width:min(100%,320px);
+    border:3px solid var(--line);
+    background:var(--surface);
+    box-shadow:var(--shadow);
+  }
+  .device::before,.device::after,.device .bl,.device .br{
+    content:""; position:absolute; width:10px; height:10px; background:var(--line);
+  }
+  .device::before{top:-3px; left:-3px;}
+  .device::after{top:-3px; right:-3px;}
+  .device .bl{bottom:-3px; left:-3px;}
+  .device .br{bottom:-3px; right:-3px;}
+  .screen{
+    margin:14px;
+    height:230px;
+    background:linear-gradient(180deg,var(--sky-top) 0%, var(--sky-bottom) 100%);
+    border:2px solid var(--line);
+    position:relative;
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .screen .pet{
+    width:150px; height:150px;
+    animation:bob 2.4s ease-in-out infinite;
+  }
+  .spark{position:absolute; width:6px; height:6px; background:#fff; opacity:0.9; animation:twinkle 1.6s ease-in-out infinite;}
+  .spark.s1{top:26px; left:56px; animation-delay:0s;}
+  .spark.s2{top:70px; right:44px; animation-delay:.5s;}
+  .spark.s3{bottom:56px; left:40px; animation-delay:1s;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+  @keyframes twinkle{0%,100%{opacity:0.15; transform:scale(0.7);}50%{opacity:1; transform:scale(1);}}
+  @media (prefers-reduced-motion: reduce){
+    .screen .pet, .spark{animation:none;}
+  }
+  .readout{
+    margin:0 14px 14px;
+    border:2px solid var(--line);
+    background:var(--surface-2);
+    padding:9px 12px;
+    font-size:10.5px; letter-spacing:0.04em;
+    display:flex; justify-content:space-between; gap:8px;
+    flex-wrap:wrap;
+  }
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0; border-bottom:3px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .alt{background:var(--surface);}
+  .kicker{
+    font-size:11px; letter-spacing:0.14em; color:var(--ink-soft);
+    text-transform:uppercase; font-weight:800; margin-bottom:10px;
+  }
+  section h2{font-size:clamp(22px,3vw,30px); margin-bottom:14px;}
+  section > .wrap > p.intro{color:var(--ink-soft); max-width:62ch; font-size:16px; margin:0 0 34px;}
+
+  /* mood cards */
+  .moods{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  .mood-card{
+    background:var(--surface); border:3px solid var(--line);
+    padding:20px; text-align:center; box-shadow:var(--shadow);
+  }
+  .mood-card img{width:80px; height:80px; margin-bottom:10px;}
+  .mood-card .tag{font-size:13px; letter-spacing:0.04em; margin-bottom:6px;}
+  .mood-card p{font-size:14px; color:var(--ink-soft); margin:0;}
+  .mood-card .days{font-size:11px; color:var(--accent); font-weight:800; margin-top:8px; letter-spacing:0.03em;}
+
+  /* garden */
+  .garden-grid{display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:36px;}
+  .garden-row{
+    display:flex; align-items:center; gap:16px;
+    border:3px solid var(--line); background:var(--surface); padding:16px 18px;
+    box-shadow:var(--shadow);
+  }
+  .garden-row img{width:56px; height:56px; flex:none;}
+  .garden-row .gt{font-size:12px; letter-spacing:0.03em; margin-bottom:4px;}
+  .garden-row p{margin:0; font-size:13.5px; color:var(--ink-soft);}
+  .garden-strip{
+    position:relative; height:64px; border:2px dashed var(--line-soft);
+    display:flex; align-items:flex-end; gap:0; overflow:hidden; padding:0 6px;
+  }
+  .garden-strip img{width:26px; height:26px; opacity:0.85; margin:0 2px 4px;}
+  .garden-note{font-size:12px; color:var(--ink-soft); margin-top:10px; text-align:center;}
+
+  /* privacy split */
+  .priv-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start;}
+  .priv-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:16px;}
+  .priv-list li{padding-left:22px; position:relative; font-size:15px;}
+  .priv-list li::before{content:"›"; position:absolute; left:0; color:var(--accent); font-weight:800; font-family:'Silkscreen',monospace;}
+  .priv-list strong{display:block; font-size:14px; margin-bottom:2px;}
+  .spec-box{
+    border:3px solid var(--line); background:var(--surface-2);
+    padding:20px 22px; box-shadow:var(--shadow);
+  }
+  .spec-box .spec-title{font-size:11px; letter-spacing:0.12em; color:var(--ink-soft); margin-bottom:14px; text-transform:uppercase; font-weight:800;}
+  .spec-box pre{margin:0 0 16px; font-size:12.5px; line-height:1.7; overflow-x:auto; white-space:pre;}
+  .spec-box .spec-row{display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:7px 0; border-top:1px solid var(--line-soft);}
+  .spec-box .spec-row:first-of-type{border-top:none;}
+  .spec-box .spec-row span:first-child{color:var(--ink-soft);}
+
+  /* deploy */
+  .steps{display:flex; flex-direction:column; gap:14px; margin-bottom:26px;}
+  .step{display:flex; gap:16px; align-items:flex-start;}
+  .step .n{
+    font-family:'Silkscreen',monospace; font-size:13px; flex:none;
+    width:30px; height:30px; border:2px solid var(--line); background:var(--accent); color:var(--accent-ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step p{margin:0; font-size:15px; padding-top:3px;}
+  .callout{
+    border:2px solid var(--line); border-left:6px solid var(--accent);
+    background:var(--surface-2); padding:14px 18px; font-size:13.5px; color:var(--ink-soft);
+    margin-bottom:30px;
+  }
+  .callout strong{color:var(--ink);}
+
+  footer{padding:36px 0 48px;}
+  .foot-row{display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:22px;}
+  .foot-tag{font-size:13px; color:var(--ink-soft);}
+  .stack{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    font-size:11px; border:1.5px solid var(--line-soft); padding:5px 9px; color:var(--ink-soft);
+  }
+  .foot-links{display:flex; gap:18px; font-size:13px; font-weight:700;}
+  .foot-links a{text-decoration:underline; text-underline-offset:3px;}
+
+  @media (max-width:820px){
+    .hero{padding-top:44px;}
+    .hero .wrap{grid-template-columns:1fr;}
+    .device-wrap{order:-1;}
+    .moods{grid-template-columns:1fr; }
+    .garden-grid{grid-template-columns:1fr;}
+    .priv-grid{grid-template-columns:1fr;}
+    .foot-row{flex-direction:column; align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap headbar">
+    <div class="brand">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAXNSR0IArs4c6QAAAjJJREFUeJzt3SFOA0EUh/GWUMspuACGBIHAE3wFloRaEhyqGklJuEAvgEEhECQYLsApsAhwmxEM6bAz/WZ2v5+qYVnyz3u82d3uTCcVuzg6+M5xnIfX92mO45SwQ5/A2BkAbJc+gckfreZ2fZPnF8yXvx4/tTV9fR52x5ntvWVpa1YAzABg2HQQtp1srSbR1XzZfY61o7DtxPRpR1YAzABgvVpQ6lRQQ9uJSW1HTkEDYQCw5DJKnQpqbjsxm7SjXKwAmAHAkq8Fhe0lNhXkuoxcg/BvKdGOrACYAcCylVSL006qEtORFQAzAJgBwAwAZgCwXv/JxzD5xOSaiKwAmAHAqnguaEhS75pZATADgNmCMojdJdykHVkBMAOAJS8gxrz4igkXZXdPs+6zU1ADDADmFJRZ6iOLVgDMAGAGADMAmAHADABmADADgPVaiD2/fHSfT473c5zP6FgBMAOAGQDMAGAGADMAmAHADABmADADgBkALNtNea8L/Y8VADMAWJHngmxHm7MCYAYAy/Y11dPFPOlnW29Nfk11IAwAhj0d3eKkFJ5zLlYAzABgRV5ZljoRtejs/NpXlg2BAcD8jliCx9U6+zGtAJgBwIq8mj327ugWp6Ow7bju6AEyANhW9xGrebFWutXEWAEwA4BVsZVhqERr2mQBRW36bAXADABW3V7rpTcAqm1/eSsAZgCwrZbj5WLRxP5i96uVC7GxMABYkVJrpdWkKtGarACYAUjSeP0AZBKdSMBgtKsAAAAASUVORK5CYII=" alt="">
+      <span class="wordmark">OVA</span>
+    </div>
+    <nav>
+      <a href="#grows">How it grows</a>
+      <a href="#garden">Garden</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#deploy">Deploy</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">A DIARY THAT GROWS</span>
+        <h1>Write a little.<br>Watch it grow.</h1>
+        <p class="lede">Ova is a private journal with a pet that grows a little every time you write. No accounts, no server, no one reading your entries but you.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://vercel.com/new/clone?repository-url=https://github.com/pixidust724/ova" target="_blank" rel="noopener">Deploy with Vercel</a>
+          <a class="btn btn-ghost" href="https://github.com/pixidust724/ova" target="_blank" rel="noopener">View source →</a>
+        </div>
+        <div class="factbits">
+          <span class="factbit">Local-first</span>
+          <span class="factbit">No accounts</span>
+          <span class="factbit">Your own GitHub backup</span>
+          <span class="factbit">Open source</span>
+        </div>
+      </div>
+      <div class="device-wrap">
+        <div class="device">
+          <span class="bl"></span><span class="br"></span>
+          <div class="screen">
+            <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
+            <img class="pet" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAXNSR0IArs4c6QAAAjJJREFUeJzt3SFOA0EUh/GWUMspuACGBIHAE3wFloRaEhyqGklJuEAvgEEhECQYLsApsAhwmxEM6bAz/WZ2v5+qYVnyz3u82d3uTCcVuzg6+M5xnIfX92mO45SwQ5/A2BkAbJc+gckfreZ2fZPnF8yXvx4/tTV9fR52x5ntvWVpa1YAzABg2HQQtp1srSbR1XzZfY61o7DtxPRpR1YAzABgvVpQ6lRQQ9uJSW1HTkEDYQCw5DJKnQpqbjsxm7SjXKwAmAHAkq8Fhe0lNhXkuoxcg/BvKdGOrACYAcCylVSL006qEtORFQAzAJgBwAwAZgCwXv/JxzD5xOSaiKwAmAHAqnguaEhS75pZATADgNmCMojdJdykHVkBMAOAJS8gxrz4igkXZXdPs+6zU1ADDADmFJRZ6iOLVgDMAGAGADMAmAHADABmADADgPVaiD2/fHSfT473c5zP6FgBMAOAGQDMAGAGADMAmAHADABmADADgBkALNtNea8L/Y8VADMAWJHngmxHm7MCYAYAy/Y11dPFPOlnW29Nfk11IAwAhj0d3eKkFJ5zLlYAzABgRV5ZljoRtejs/NpXlg2BAcD8jliCx9U6+zGtAJgBwIq8mj327ugWp6Ow7bju6AEyANhW9xGrebFWutXEWAEwA4BVsZVhqERr2mQBRW36bAXADABW3V7rpTcAqm1/eSsAZgCwrZbj5WLRxP5i96uVC7GxMABYkVJrpdWkKtGarACYAUjSeP0AZBKdSMBgtKsAAAAASUVORK5CYII=" alt="Pixel-art egg pet, happy state">
+          </div>
+          <div class="readout mono">
+            <span>STAGE: EGG</span><span>MOOD: HAPPY</span><span>ENTRIES: 12</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="grows">
+    <div class="wrap">
+      <div class="kicker">The mechanic</div>
+      <h2>Your pet only ever grows.</h2>
+      <p class="intro">Growth is just your total entry count — it never goes backward, no matter how long you're away. Mood is separate: purely cosmetic, based on how recently you last wrote, and it never punishes you for a gap.</p>
+      <div class="moods">
+        <div class="mood-card">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAXNSR0IArs4c6QAAAjJJREFUeJzt3SFOA0EUh/GWUMspuACGBIHAE3wFloRaEhyqGklJuEAvgEEhECQYLsApsAhwmxEM6bAz/WZ2v5+qYVnyz3u82d3uTCcVuzg6+M5xnIfX92mO45SwQ5/A2BkAbJc+gckfreZ2fZPnF8yXvx4/tTV9fR52x5ntvWVpa1YAzABg2HQQtp1srSbR1XzZfY61o7DtxPRpR1YAzABgvVpQ6lRQQ9uJSW1HTkEDYQCw5DJKnQpqbjsxm7SjXKwAmAHAkq8Fhe0lNhXkuoxcg/BvKdGOrACYAcCylVSL006qEtORFQAzAJgBwAwAZgCwXv/JxzD5xOSaiKwAmAHAqnguaEhS75pZATADgNmCMojdJdykHVkBMAOAJS8gxrz4igkXZXdPs+6zU1ADDADmFJRZ6iOLVgDMAGAGADMAmAHADABmADADgPVaiD2/fHSfT473c5zP6FgBMAOAGQDMAGAGADMAmAHADABmADADgBkALNtNea8L/Y8VADMAWJHngmxHm7MCYAYAy/Y11dPFPOlnW29Nfk11IAwAhj0d3eKkFJ5zLlYAzABgRV5ZljoRtejs/NpXlg2BAcD8jliCx9U6+zGtAJgBwIq8mj327ugWp6Ow7bju6AEyANhW9xGrebFWutXEWAEwA4BVsZVhqERr2mQBRW36bAXADABW3V7rpTcAqm1/eSsAZgCwrZbj5WLRxP5i96uVC7GxMABYkVJrpdWkKtGarACYAUjSeP0AZBKdSMBgtKsAAAAASUVORK5CYII=" alt="">
+          <div class="tag">HAPPY</div>
+          <p>You wrote today.</p>
+          <div class="days">0 days since last entry</div>
+        </div>
+        <div class="mood-card">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAXNSR0IArs4c6QAAAkFJREFUeJzt3TFOw0EURVGCWAoboKSgoGcD2QASaampUtMGiQ1kA/QUFJRsgL1Ah4YIB1ue7/vHvqeiQInR03+MJ469Okns9vLiq8brPL9/rGq8ToRT+gCWzgBgZ/QBnBypmsf9Q503WG//fP0M1eQEwAwAho1gWTvVqmag+/X252eqjpwAmAHAJh27DLXThaojJwBmALDwUctcO12mrCMnAGYAsJC9oFrbyBmUf0tEHTkBMAOAVaugFlc7pXLl03n8xbZ2rTpyAmAGAAtZBfUa52So43QCYAYAG1VBXSufsoLm5FdNVVoROQEwA4CFrIL61FErq6NoTgDMAGDhlyZaNcc5ATADgA0+gWh92znCmA/xnQCYAcAMAGYAMAOAGQDMAGAGAEvxNdVs+nyiV+sk1AmAGQBsVAW9vn3++zvXV+dj3iLUlFXTxQmAGQAsfBXUVVMZqinDdroTADMAGHYiVlZThjqiOAEwA4Cl2AtqsY5qXQHuBMAMAJaigkqt1FGtL6Q4ATADgKWroFLmfaRanACYAcBG3XCivFL6ZrOuckBjTFlNtW5r5gTADACWehU0VJ+LBLJxAmAGABtVQQf//VOtiKJ5y7KZMADYrFZB0V52++qv6QTADAAWcmv2rntHt7g6KmvHe0fPkAHAsIf4ZKuj6Krp4gTADACW4lGGpYhq6nMC5aMMF8oAYPgDjQ9FPwAow0OcS04AzABgk47j3WbTxPPFnnY7T8SWwgBgIaPWStUMFVFNTgDMACRpub4BepqfFnYbAZ8AAAAASUVORK5CYII=" alt="">
+          <div class="tag">NEUTRAL</div>
+          <p>You wrote within the last few days.</p>
+          <div class="days">1–3 days since last entry</div>
+        </div>
+        <div class="mood-card">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAXNSR0IArs4c6QAAArNJREFUeJztnbFuU0EQRW1ETYeM0iOBREMJokmVP0HCH+RIoeMfKKjSRElJg0QkeoRFxw+YzozQG9j17uydp3dO9QpnZfvq3szMPr9drxLz9tXLQ491ru4+r3usE8ED9RtYOggg5qH6Daz+ETWb18/6rL9aTa6fIZpwgBgEECOzoI2dXlFTy/72/nitiiMcIAYBxAy1XYbY8VDFEQ4QgwBiiqz25uL/M5mbT9O2zRw7HiPjCAeIQQAxTRHkVT6etTPQEo/29Xajv2VehAPEIICYkCqoNo5GVkrZqjIcIAYBxITfmpjN8tnAAWIQQEx1AzH3sfP1l9ObxPMX05+3ZRMfB4hBADEIIAYBxCCAmKZG7MfPX8frJ48fTb6mturwKo1eRK9fCw4QgwBius2CbBx93X8/eR0bWaq4GDlCxwFiEEBMyDj6+ebseF0bRyNjJ8NuHQ4QgwBiwnfEbByVUNLc9SLDOB0HiEEAMQggBgHEIICYFI8s87AVkYetlFo23C0lzWCvO8BxgBgEEJM6gkooiakIDk//NJjrb6eP33GAGAQQI4sgz7bW2rXUzp08RsYaDhCDAGKaHtZh75SujQ4bQS2x00JLDNq/5WeqMwYBxIRXQRHVTi+8ZmpkPOIAMQggJuSRZZZaC9feR9Sr+bKURND7Dx+7fHc4QAwCiAmpgjJUOL1oGTWXgAPEIICYkEez96qIMtBr5uOBA8QggBjZIT7Z4ig6ajxwgBgEEJPiKENLRDSVNFMcZbhQEECM/EDjv4k+ACjDIc4WHCAGAcQMteO77XYW54td7nY0YksBAcSEWG0uUVNLRDThADEIAACwXH4DkC3X4UDsk4kAAAAASUVORK5CYII=" alt="">
+          <div class="tag">HUNGRY</div>
+          <p>It's been a while — no judgement, just tap in whenever.</p>
+          <div class="days">3+ days since last entry</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="garden" class="alt">
+    <div class="wrap">
+      <div class="kicker">The garden</div>
+      <h2>Every entry plants something.</h2>
+      <p class="intro">The background of your diary fills in as you write. What grows depends on how the entry felt — a quiet record of your emotional history that you can literally see.</p>
+      <div class="garden-grid">
+        <div class="garden-row">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAbBJREFUaIHtmTtLA0EUhSdRsLDRMgiiqKgLKlEwnVV+QOysLbQJ1hYpLaxFBC2s7fQHSAq7CD5QWAUVQRBLKwsxPrq7p5jFO8zAcmBOdVnmzu7hfMzM7hoTFeWlUqiJPo/Kvy7j+1Z+gty7HGKSIkVvwCtGxCZ9nJLrs2tP1vE3B2NSJ+P3UvvgRJ8AvQHn6DTYTCzOWHsfzm+lDoUTfQL0BlRxuWJTr3xb5zl965E6FE70CdAb6HVt0GDz/N5v7a1XPqy9iFO37fY89AnQG3BGCKXBBoVjECcf0ScQDRStaKBoqVYhPP8kJjur4NkGV5W8FWl0MBuDvd32l/VexqT/Pht9AvQGnN/IrrYSOVrj0Xd6c15qzXH6bvtSasSm2krjGxmVvL4L5eGkkQ82KPoE6A2oNrLa7oagsrr8IterQycSPeKk+bTogw2KPgF6AyqEEJvD42Gp918bgg3iVBvIkFtIzmT8Xuu6ZOvFOTvNnbiRUcl5JciLPg8zRGhucsQ6BnvXAUWN6BOgNxDsNysKNz5E6CJdktoHGxR9AvQGvD4tugo3qU4zzJz0CdAb+AMQOJYbAwFKtAAAAABJRU5ErkJggg==" alt="Pixel sunflower">
+          <div>
+            <div class="gt">HAPPY ENTRY</div>
+            <p>Plants a sunflower.</p>
+          </div>
+        </div>
+        <div class="garden-row">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAQtJREFUaIHtlz0KAjEQhV3JLQSxs1zBwsIj2OgVBBFEPINnEBubvcKKB7Dfayh23kG7OEIGf9b48mC+KiRkyeMN82azwXZ1awSolpsstJ8aTfQD6kIvwGkHu8vYl9a8tU+2nOgdMAFoTAAaN52cggdF2f76o6NZPxiO13zo158GpeyK8m30DtALUINMIuel1GYkegdMABoTgMZpo7IMjmf+15Fk9yvKx74MX3oH6AW8FWQaWpkd1ueXdxfHXvBu3u34tSwbDXoH6AXUKiEUsnPSO0AvgKaEtNCkd4BeQJRZJsZPvQa9AyYAjQlA87Mg0zpPbOgdoBcQZRaSgRUbegdMABoTgMYEoKEXcAeBDzknEcC6HwAAAABJRU5ErkJggg==" alt="Pixel grass">
+          <div>
+            <div class="gt">SAD ENTRY</div>
+            <p>Plants a patch of grass.</p>
+          </div>
+        </div>
+      </div>
+      <div class="garden-strip" aria-hidden="true">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAbBJREFUaIHtmTtLA0EUhSdRsLDRMgiiqKgLKlEwnVV+QOysLbQJ1hYpLaxFBC2s7fQHSAq7CD5QWAUVQRBLKwsxPrq7p5jFO8zAcmBOdVnmzu7hfMzM7hoTFeWlUqiJPo/Kvy7j+1Z+gty7HGKSIkVvwCtGxCZ9nJLrs2tP1vE3B2NSJ+P3UvvgRJ8AvQHn6DTYTCzOWHsfzm+lDoUTfQL0BlRxuWJTr3xb5zl965E6FE70CdAb6HVt0GDz/N5v7a1XPqy9iFO37fY89AnQG3BGCKXBBoVjECcf0ScQDRStaKBoqVYhPP8kJjur4NkGV5W8FWl0MBuDvd32l/VexqT/Pht9AvQGnN/IrrYSOVrj0Xd6c15qzXH6bvtSasSm2krjGxmVvL4L5eGkkQ82KPoE6A2oNrLa7oagsrr8IterQycSPeKk+bTogw2KPgF6AyqEEJvD42Gp918bgg3iVBvIkFtIzmT8Xuu6ZOvFOTvNnbiRUcl5JciLPg8zRGhucsQ6BnvXAUWN6BOgNxDsNysKNz5E6CJdktoHGxR9AvQGvD4tugo3qU4zzJz0CdAb+AMQOJYbAwFKtAAAAABJRU5ErkJggg==" alt="">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAQtJREFUaIHtlz0KAjEQhV3JLQSxs1zBwsIj2OgVBBFEPINnEBubvcKKB7Dfayh23kG7OEIGf9b48mC+KiRkyeMN82azwXZ1awSolpsstJ8aTfQD6kIvwGkHu8vYl9a8tU+2nOgdMAFoTAAaN52cggdF2f76o6NZPxiO13zo158GpeyK8m30DtALUINMIuel1GYkegdMABoTgMZpo7IMjmf+15Fk9yvKx74MX3oH6AW8FWQaWpkd1ueXdxfHXvBu3u34tSwbDXoH6AXUKiEUsnPSO0AvgKaEtNCkd4BeQJRZJsZPvQa9AyYAjQlA87Mg0zpPbOgdoBcQZRaSgRUbegdMABoTgMYEoKEXcAeBDzknEcC6HwAAAABJRU5ErkJggg==" alt="">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAbBJREFUaIHtmTtLA0EUhSdRsLDRMgiiqKgLKlEwnVV+QOysLbQJ1hYpLaxFBC2s7fQHSAq7CD5QWAUVQRBLKwsxPrq7p5jFO8zAcmBOdVnmzu7hfMzM7hoTFeWlUqiJPo/Kvy7j+1Z+gty7HGKSIkVvwCtGxCZ9nJLrs2tP1vE3B2NSJ+P3UvvgRJ8AvQHn6DTYTCzOWHsfzm+lDoUTfQL0BlRxuWJTr3xb5zl965E6FE70CdAb6HVt0GDz/N5v7a1XPqy9iFO37fY89AnQG3BGCKXBBoVjECcf0ScQDRStaKBoqVYhPP8kJjur4NkGV5W8FWl0MBuDvd32l/VexqT/Pht9AvQGnN/IrrYSOVrj0Xd6c15qzXH6bvtSasSm2krjGxmVvL4L5eGkkQ82KPoE6A2oNrLa7oagsrr8IterQycSPeKk+bTogw2KPgF6AyqEEJvD42Gp918bgg3iVBvIkFtIzmT8Xuu6ZOvFOTvNnbiRUcl5JciLPg8zRGhucsQ6BnvXAUWN6BOgNxDsNysKNz5E6CJdktoHGxR9AvQGvD4tugo3qU4zzJz0CdAb+AMQOJYbAwFKtAAAAABJRU5ErkJggg==" alt="">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAQtJREFUaIHtlz0KAjEQhV3JLQSxs1zBwsIj2OgVBBFEPINnEBubvcKKB7Dfayh23kG7OEIGf9b48mC+KiRkyeMN82azwXZ1awSolpsstJ8aTfQD6kIvwGkHu8vYl9a8tU+2nOgdMAFoTAAaN52cggdF2f76o6NZPxiO13zo158GpeyK8m30DtALUINMIuel1GYkegdMABoTgMZpo7IMjmf+15Fk9yvKx74MX3oH6AW8FWQaWpkd1ueXdxfHXvBu3u34tSwbDXoH6AXUKiEUsnPSO0AvgKaEtNCkd4BeQJRZJsZPvQa9AyYAjQlA87Mg0zpPbOgdoBcQZRaSgRUbegdMABoTgMYEoKEXcAeBDzknEcC6HwAAAABJRU5ErkJggg==" alt="">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAbBJREFUaIHtmTtLA0EUhSdRsLDRMgiiqKgLKlEwnVV+QOysLbQJ1hYpLaxFBC2s7fQHSAq7CD5QWAUVQRBLKwsxPrq7p5jFO8zAcmBOdVnmzu7hfMzM7hoTFeWlUqiJPo/Kvy7j+1Z+gty7HGKSIkVvwCtGxCZ9nJLrs2tP1vE3B2NSJ+P3UvvgRJ8AvQHn6DTYTCzOWHsfzm+lDoUTfQL0BlRxuWJTr3xb5zl965E6FE70CdAb6HVt0GDz/N5v7a1XPqy9iFO37fY89AnQG3BGCKXBBoVjECcf0ScQDRStaKBoqVYhPP8kJjur4NkGV5W8FWl0MBuDvd32l/VexqT/Pht9AvQGnN/IrrYSOVrj0Xd6c15qzXH6bvtSasSm2krjGxmVvL4L5eGkkQ82KPoE6A2oNrLa7oagsrr8IterQycSPeKk+bTogw2KPgF6AyqEEJvD42Gp918bgg3iVBvIkFtIzmT8Xuu6ZOvFOTvNnbiRUcl5JciLPg8zRGhucsQ6BnvXAUWN6BOgNxDsNysKNz5E6CJdktoHGxR9AvQGvD4tugo3qU4zzJz0CdAb+AMQOJYbAwFKtAAAAABJRU5ErkJggg==" alt="">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAQtJREFUaIHtlz0KAjEQhV3JLQSxs1zBwsIj2OgVBBFEPINnEBubvcKKB7Dfayh23kG7OEIGf9b48mC+KiRkyeMN82azwXZ1awSolpsstJ8aTfQD6kIvwGkHu8vYl9a8tU+2nOgdMAFoTAAaN52cggdF2f76o6NZPxiO13zo158GpeyK8m30DtALUINMIuel1GYkegdMABoTgMZpo7IMjmf+15Fk9yvKx74MX3oH6AW8FWQaWpkd1ueXdxfHXvBu3u34tSwbDXoH6AXUKiEUsnPSO0AvgKaEtNCkd4BeQJRZJsZPvQa9AyYAjQlA87Mg0zpPbOgdoBcQZRaSgRUbegdMABoTgMYEoKEXcAeBDzknEcC6HwAAAABJRU5ErkJggg==" alt="">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAbBJREFUaIHtmTtLA0EUhSdRsLDRMgiiqKgLKlEwnVV+QOysLbQJ1hYpLaxFBC2s7fQHSAq7CD5QWAUVQRBLKwsxPrq7p5jFO8zAcmBOdVnmzu7hfMzM7hoTFeWlUqiJPo/Kvy7j+1Z+gty7HGKSIkVvwCtGxCZ9nJLrs2tP1vE3B2NSJ+P3UvvgRJ8AvQHn6DTYTCzOWHsfzm+lDoUTfQL0BlRxuWJTr3xb5zl965E6FE70CdAb6HVt0GDz/N5v7a1XPqy9iFO37fY89AnQG3BGCKXBBoVjECcf0ScQDRStaKBoqVYhPP8kJjur4NkGV5W8FWl0MBuDvd32l/VexqT/Pht9AvQGnN/IrrYSOVrj0Xd6c15qzXH6bvtSasSm2krjGxmVvL4L5eGkkQ82KPoE6A2oNrLa7oagsrr8IterQycSPeKk+bTogw2KPgF6AyqEEJvD42Gp918bgg3iVBvIkFtIzmT8Xuu6ZOvFOTvNnbiRUcl5JciLPg8zRGhucsQ6BnvXAUWN6BOgNxDsNysKNz5E6CJdktoHGxR9AvQGvD4tugo3qU4zzJz0CdAb+AMQOJYbAwFKtAAAAABJRU5ErkJggg==" alt="">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAQtJREFUaIHtlz0KAjEQhV3JLQSxs1zBwsIj2OgVBBFEPINnEBubvcKKB7Dfayh23kG7OEIGf9b48mC+KiRkyeMN82azwXZ1awSolpsstJ8aTfQD6kIvwGkHu8vYl9a8tU+2nOgdMAFoTAAaN52cggdF2f76o6NZPxiO13zo158GpeyK8m30DtALUINMIuel1GYkegdMABoTgMZpo7IMjmf+15Fk9yvKx74MX3oH6AW8FWQaWpkd1ueXdxfHXvBu3u34tSwbDXoH6AXUKiEUsnPSO0AvgKaEtNCkd4BeQJRZJsZPvQa9AyYAjQlA87Mg0zpPbOgdoBcQZRaSgRUbegdMABoTgMYEoKEXcAeBDzknEcC6HwAAAABJRU5ErkJggg==" alt="">
+      </div>
+      <p class="garden-note">Neutral entries plant nothing — the pet's fine either way, the garden just waits. Nothing is ever pruned; it's meant to get dense.</p>
+    </div>
+  </section>
+
+  <section id="privacy">
+    <div class="wrap">
+      <div class="kicker">Privacy</div>
+      <h2>Your entries never leave your device — unless you say so.</h2>
+      <div class="priv-grid">
+        <ul class="priv-list">
+          <li><strong>Local-first</strong>All entries live in your browser's IndexedDB. The app works fully offline, and that local copy is always the source of truth.</li>
+          <li><strong>No accounts, no server</strong>There's nothing to sign up for and nothing Ova's author can see. Each person who deploys it runs their own private instance.</li>
+          <li><strong>Backup is opt-in and one-way</strong>Cloud storage never overwrites your device — it's a mirror you can restore from, not a second source of truth.</li>
+        </ul>
+        <div class="spec-box">
+          <div class="spec-title">Encrypted backup</div>
+          <pre class="mono">Browser (IndexedDB)
+   │  encrypt — Web Crypto API + your passphrase
+   ▼
+GitHub — your own private repo
+   /entries/YYYY-MM-DD-N.enc</pre>
+          <div class="spec-row"><span>Encryption</span><span>Web Crypto API, client-side</span></div>
+          <div class="spec-row"><span>Credentials</span><span>Your GitHub token + passphrase, stored locally</span></div>
+          <div class="spec-row"><span>Sync direction</span><span>One-way push, device → GitHub</span></div>
+          <div class="spec-row"><span>Stale-backup warning</span><span>Configurable, default 24h</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="deploy" class="alt">
+    <div class="wrap">
+      <div class="kicker">Run your own</div>
+      <h2>No shared server. Every diary is its own instance.</h2>
+      <p class="intro">Deploying Ova forks the repo into your own Vercel account, so your build, your data, and your backup are entirely separate from anyone else's.</p>
+      <div class="steps">
+        <div class="step">
+          <span class="n">1</span>
+          <p>Click <strong>Deploy with Vercel</strong> below — it forks the repo into your account and deploys it.</p>
+        </div>
+        <div class="step">
+          <span class="n">2</span>
+          <p>Open your new app → go to <strong>Settings</strong> to connect your own encrypted GitHub backup.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Before you connect a backup repo:</strong> set it to Private. Entries are encrypted, but a public repo still exposes that you're backing up a diary there.
+      </div>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://vercel.com/new/clone?repository-url=https://github.com/pixidust724/ova" target="_blank" rel="noopener">Deploy with Vercel</a>
+        <a class="btn btn-ghost" href="https://github.com/pixidust724/ova" target="_blank" rel="noopener">View source →</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <div>
+        <span class="wordmark" style="font-size:13px;">OVA</span>
+        <div class="foot-tag">No company. No accounts. Just yours.</div>
+      </div>
+      <div class="stack">
+        <span class="chip">Next.js 14</span>
+        <span class="chip">Dexie.js</span>
+        <span class="chip">Web Crypto API</span>
+        <span class="chip">Octokit</span>
+        <span class="chip">Vercel</span>
+      </div>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/pixidust724/ova" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://vercel.com/new/clone?repository-url=https://github.com/pixidust724/ova" target="_blank" rel="noopener">Deploy</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
